@@ -8,4 +8,7 @@ export const gifts = pgTable('gifts', {
   rating: integer('rating'),
 });
 
+export type Gift = typeof gifts.$inferSelect; // return type when queried
+export type NewGift = typeof gifts.$inferInsert; // insert type
+
 export default gifts;
