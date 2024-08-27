@@ -16,13 +16,10 @@ const runSeeder = async () => {
 
   console.log('Running seeder...');
 
-  const firstGift = await db.query.gifts.findFirst();
-  if (!firstGift) {
-    for (const gift of giftsData) {
-      await db.insert(schema.gifts).values(gift);
-    }
-  } else {
-    console.log('Seeder not needed');
+  await db.delete(schema.gifts);
+
+  for (const gift of giftsData) {
+    await db.insert(schema.gifts).values(gift);
   }
 
   console.log('Seeder finished');

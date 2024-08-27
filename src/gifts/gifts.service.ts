@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_CONNECTION } from '../constant';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
-import { Gift } from '../drizzle/schema/gifts';
+import { Gift, NewGift } from '../drizzle/schema/gifts';
 import { eq, desc, asc } from 'drizzle-orm';
 
 @Injectable()
@@ -48,10 +48,17 @@ export class GiftsService {
     return this.calculateStars(gift);
   }
 
+  async create(newGift: NewGift) {
+    return this.conn
+      .insert(schema.gifts)
+      .values(newGift)
+      .returning({ createdId: schema.gifts.id });
+  }
+
   private calculateStars(gift: Gift) {
     let star = 0;
     const diff = gift.rating % 0.5;
-    if (diff > 3) star = gift.rating - diff + 0.5;
+    if (diff > 0.3) star = gift.rating - diff + 0.5;
     else star = gift.rating - diff;
     return { ...gift, star };
   }

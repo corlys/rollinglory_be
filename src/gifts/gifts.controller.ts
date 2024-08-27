@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Post,
+  Body,
+  UsePipes,
+} from '@nestjs/common';
 import { GiftsService } from './gifts.service';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
+import { CreateGiftDto, CreateGiftSchema } from './dto/create-gift.dto';
 
 @Controller('gifts')
 export class GiftsController {
@@ -18,6 +28,15 @@ export class GiftsController {
     const gift = await this.giftsService.findOne(parseInt(id));
     return {
       data: gift,
+    };
+  }
+
+  @Post()
+  @UsePipes(new ZodValidationPipe(CreateGiftSchema))
+  async create(@Body() createGiftDto: CreateGiftDto) {
+    const createdId = await this.giftsService.create(createGiftDto);
+    return {
+      data: createdId,
     };
   }
 }

@@ -1,6 +1,7 @@
 import {
   pgTable,
   integer,
+  doublePrecision,
   serial,
   varchar,
   text,
@@ -12,7 +13,7 @@ export const gifts = pgTable('gifts', {
   name: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   stock: integer('stock').notNull().default(0),
-  rating: integer('rating').notNull().default(0),
+  rating: doublePrecision('rating').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

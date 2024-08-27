@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1724684542029,
-      "tag": "0000_material_vision",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1724716194274,
-      "tag": "0001_black_the_liberteens",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1724719160352,
-      "tag": "0002_majestic_arclight",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1724719210824,
-      "tag": "0003_curved_doomsday",
+      "when": 1724725631739,
+      "tag": "0000_good_oracle",
       "breakpoints": true
     }
   ]
