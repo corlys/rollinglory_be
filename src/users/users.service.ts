@@ -73,7 +73,10 @@ export class UsersService {
   async put(id: number, putUser: PutUserDto) {
     return this.conn
       .update(schema.users)
-      .set(putUser)
+      .set({
+        name: putUser.name,
+        saltedPassword: await this.saltPassword(putUser.password),
+      })
       .where(eq(schema.users.id, id))
       .returning({
         updatedId: schema.users.id,

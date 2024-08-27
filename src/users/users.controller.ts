@@ -65,16 +65,10 @@ export class UsersController {
     @Body(new ZodValidationPipe(PutUserSchema)) body: PutUserDto,
   ) {
     const { id } = param;
-    const { name, password } = body;
-    const saltedPassword = await this.usersService.saltPassword(password);
-    const updatedIds = await this.usersService.put(parseInt(id), {
-      name,
-      password: saltedPassword,
-    });
+    await this.usersService.put(parseInt(id), body);
     return {
-      code: 200,
+      code: 201,
       message: PUT_SUCCESSFUL,
-      data: updatedIds,
     };
   }
 

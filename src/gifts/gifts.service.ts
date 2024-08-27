@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PG_CONNECTION } from '../constant';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
@@ -6,18 +11,18 @@ import { Gift, NewGift } from '../drizzle/schema/gifts';
 import { eq, desc, asc } from 'drizzle-orm';
 import { GiftDto } from './dto/gift.dto';
 import { PartialGiftDto } from './dto/partial-gifts.dto';
+import { RedeemManyBodyDto } from './dto/redeem.dto';
 
 @Injectable()
 export class GiftsService {
   constructor(
     @Inject(PG_CONNECTION) private conn: NodePgDatabase<typeof schema>,
   ) {}
-  async findAll(
-    sortBy?: string,
-    sort?: string,
-    limit?: number,
-    offset?: number,
-  ) {
+  async findAll(sortBy?: string, sort?: string, limit?: number, page?: number) {
+    let offset = 0;
+    if (page && limit) {
+      offset = (page - 1) * limit;
+    }
     const gifts = await this.conn.query.gifts.findMany({
       orderBy: (() => {
         switch (sortBy) {
@@ -98,6 +103,38 @@ export class GiftsService {
       .returning({
         updatedId: schema.gifts.id,
       });
+  }
+
+  async redeem(id: number, count: number) {
+    const gift = await this.findOne(id);
+    if (!gift) throw new NotFoundException('Gift Not Found');
+    if (gift.stock >= count) {
+      return await this.patch(id, { stock: gift.stock - count });
+    } else {
+      throw new ForbiddenException('Stock is less than count');
+    }
+  }
+
+  async redeemMany(body: RedeemManyBodyDto) {
+    const { items } = body;
+    await this.conn.transaction(async (tx) => {
+      for (const item of items) {
+        const gift = await tx.query.gifts.findFirst({
+          where: eq(schema.users.id, item.id),
+        });
+        if (!gift) {
+          throw new NotFoundException('Gift not found');
+        }
+        if (gift.stock >= item.count) {
+          await tx
+            .update(schema.gifts)
+            .set({ stock: gift.stock - item.count })
+            .where(eq(schema.gifts.id, item.id));
+        } else {
+          throw new ForbiddenException('Stock is Less than count');
+        }
+      }
+    });
   }
 
   private calculateStars(gift: Gift) {

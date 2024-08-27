@@ -46,15 +46,11 @@ export class GiftsController {
   @UsePipes(new ZodValidationPipe(GetGiftsSchema))
   async findAll(@Query() query: GetGiftsDto) {
     const { sortBy, sort, page, limit } = query;
-    let offset = 0;
-    if (page && limit) {
-      offset = (parseInt(page) - 1) * parseInt(limit);
-    }
     const gifts = await this.giftsService.findAll(
       sortBy,
       sort,
-      limit ? parseInt(limit) : undefined,
-      offset,
+      parseInt(limit || '0'),
+      parseInt(page || '0'),
     );
     return {
       code: 200,
@@ -148,42 +144,21 @@ export class GiftsController {
   ) {
     const { count } = body;
     const { id } = param;
-    const gift = await this.giftsService.findOne(parseInt(id));
-    if (!gift) throw new ForbiddenException('Cannot redeem gift');
-    if (gift.stock >= count) {
-      const updatedId = await this.giftsService.patch(parseInt(id), {
-        stock: gift.stock - count,
-      });
-      return {
-        code: 200,
-        message: REDEEM_SUCCESSFUL,
-        data: updatedId,
-      };
-    }
-    throw new ForbiddenException('Count is more than stock');
+    await this.giftsService.redeem(parseInt(id), count);
+    return {
+      code: 201,
+      message: REDEEM_SUCCESSFUL,
+    };
   }
 
   @Post('/redeem')
   async redeemMany(
     @Body(new ZodValidationPipe(RedeemManyBodySchema)) body: RedeemManyBodyDto,
   ) {
-    const { items } = body;
-    const updatedIds: { updatedId: number }[] = [];
-    for (const item of items) {
-      const { id, count } = item;
-      const gift = await this.giftsService.findOne(id);
-      if (!gift) continue;
-      if (gift.stock >= count) {
-        await this.giftsService.patch(id, { stock: gift.stock - count });
-        updatedIds.push({
-          updatedId: id,
-        });
-      }
-    }
+    await this.giftsService.redeemMany(body);
     return {
-      code: 200,
+      code: 201,
       message: REDEEM_SUCCESSFUL,
-      data: updatedIds,
     };
   }
 }
