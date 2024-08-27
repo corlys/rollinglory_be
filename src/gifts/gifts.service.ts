@@ -10,7 +10,12 @@ export class GiftsService {
   constructor(
     @Inject(PG_CONNECTION) private conn: NodePgDatabase<typeof schema>,
   ) {}
-  async findAll(sortBy?: string, sort?: string) {
+  async findAll(
+    sortBy?: string,
+    sort?: string,
+    limit?: number,
+    offset?: number,
+  ) {
     const gifts = await this.conn.query.gifts.findMany({
       orderBy: (() => {
         switch (sortBy) {
@@ -36,6 +41,8 @@ export class GiftsService {
             return [desc(schema.gifts.updatedAt)];
         }
       })(),
+      limit: limit ? limit : undefined,
+      offset: offset ? offset : undefined,
     });
     return gifts.map((gift) => this.calculateStars(gift));
   }
