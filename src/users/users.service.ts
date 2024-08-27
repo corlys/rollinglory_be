@@ -11,6 +11,15 @@ export class UsersService {
     @Inject(PG_CONNECTION) private conn: NodePgDatabase<typeof schema>,
   ) {}
 
+  async findAll() {
+    return this.conn.query.users.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
   async findByName(name: string) {
     return this.conn.query.users.findFirst({
       where: eq(schema.users.name, name),
@@ -28,5 +37,10 @@ export class UsersService {
       .returning({
         createdId: schema.users.id,
       });
+  }
+
+  verify(password: string, saltedPassword: string) {
+    const verify = bcrypt.compareSync(password, saltedPassword);
+    return verify;
   }
 }
