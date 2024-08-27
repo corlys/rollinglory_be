@@ -35,3 +35,14 @@ export const giftsData = [
     rating: 4,
   },
 ] as const;
+
+export const usersData = [
+  {
+    name: 'Corlys',
+    password: 'Rhaenys',
+  },
+  {
+    name: 'Aegon',
+    password: 'Heleana',
+  },
+] as const;
