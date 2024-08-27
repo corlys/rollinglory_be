@@ -1,4 +1,11 @@
-import { pgTable, integer, serial, varchar, text } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  integer,
+  serial,
+  varchar,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const gifts = pgTable('gifts', {
   id: serial('id').primaryKey(),
@@ -6,6 +13,8 @@ export const gifts = pgTable('gifts', {
   description: text('description'),
   stock: integer('stock').notNull(),
   rating: integer('rating'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export type Gift = typeof gifts.$inferSelect; // return type when queried
