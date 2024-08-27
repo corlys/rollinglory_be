@@ -9,6 +9,7 @@ import {
   Delete,
   Put,
   Patch,
+  Logger,
 } from '@nestjs/common';
 import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
@@ -17,10 +18,12 @@ import { GetGiftsDto, GetGiftsSchema } from './dto/get-gifts.dto';
 import { GetGiftByIdDto, GetGiftByIdSchema } from './dto/get-gift-by-id.dto';
 import { DeleteGiftDto, DeleteGiftSchema } from './dto/delete-gift.dto';
 import { PutGiftBodyDto, PutGiftBodySchema } from './dto/put-gift.dto';
-import { PatchGifBodytSchema, PatchGiftBodyDto } from './dto/patch-gift.dto';
+import { PatchGiftBodytSchema, PatchGiftBodyDto } from './dto/patch-gift.dto';
 
 @Controller('gifts')
 export class GiftsController {
+  private readonly logger = new Logger(GiftsController.name);
+
   constructor(private readonly giftsService: GiftsService) {}
 
   @Get()
@@ -72,8 +75,10 @@ export class GiftsController {
   }
 
   @Put('/:id')
-  @UsePipes(new ZodValidationPipe(PutGiftBodySchema))
-  async put(@Param('id') id: string, @Body() body: PutGiftBodyDto) {
+  async put(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PutGiftBodySchema)) body: PutGiftBodyDto,
+  ) {
     const updatedId = await this.giftsService.put(parseInt(id), body);
     return {
       data: updatedId,
@@ -81,8 +86,11 @@ export class GiftsController {
   }
 
   @Patch('/:id')
-  @UsePipes(new ZodValidationPipe(PatchGifBodytSchema))
-  async patch(@Param('id') id: string, @Body() body: PatchGiftBodyDto) {
+  async patch(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PatchGiftBodytSchema)) body: PatchGiftBodyDto,
+  ) {
+    this.logger.log('route reched');
     const updatedId = await this.giftsService.patch(parseInt(id), body);
     return {
       data: updatedId,
