@@ -10,8 +10,8 @@ import {
   Put,
   Patch,
   Logger,
-  ForbiddenException,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
@@ -35,6 +35,7 @@ import {
   CREATE_SUCCESSFUL,
   REDEEM_SUCCESSFUL,
 } from '../common/messages';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('gifts')
 export class GiftsController {
@@ -122,6 +123,7 @@ export class GiftsController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Post('/:id/rating')
   async rate(
     @Param(new ZodValidationPipe(GiftParamIdSchema)) param: GiftParamIdDto,
@@ -137,6 +139,7 @@ export class GiftsController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Post('/:id/redeem')
   async redeem(
     @Param(new ZodValidationPipe(GiftParamIdSchema)) param: GiftParamIdDto,
@@ -151,6 +154,7 @@ export class GiftsController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Post('/redeem')
   async redeemMany(
     @Body(new ZodValidationPipe(RedeemManyBodySchema)) body: RedeemManyBodyDto,
