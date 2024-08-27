@@ -4,6 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { PG_CONNECTION } from '../constant';
 import * as schema from '../drizzle/schema';
 import { eq } from 'drizzle-orm';
+import { PatchUserDto } from './dto/patch-user.dto';
+import { PutUserDto } from './dto/put-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +28,16 @@ export class UsersService {
     });
   }
 
+  async findById(id: number) {
+    return this.conn.query.users.findFirst({
+      where: eq(schema.users.id, id),
+    });
+  }
+
+  async saltPassword(password: string) {
+    return await bcrypt.hash(password, 10);
+  }
+
   async create(name: string, password: string) {
     const saltedPassword = await bcrypt.hash(password, 10);
     return this.conn
@@ -36,6 +48,35 @@ export class UsersService {
       })
       .returning({
         createdId: schema.users.id,
+      });
+  }
+
+  async delete(id: number) {
+    return this.conn
+      .delete(schema.users)
+      .where(eq(schema.users.id, id))
+      .returning({
+        deletedId: schema.users.id,
+      });
+  }
+
+  async patch(id: number, patchedUser: PatchUserDto) {
+    return this.conn
+      .update(schema.users)
+      .set(patchedUser)
+      .where(eq(schema.users.id, id))
+      .returning({
+        updatedId: schema.users.id,
+      });
+  }
+
+  async put(id: number, putUser: PutUserDto) {
+    return this.conn
+      .update(schema.users)
+      .set(putUser)
+      .where(eq(schema.users.id, id))
+      .returning({
+        updatedId: schema.users.id,
       });
   }
 
