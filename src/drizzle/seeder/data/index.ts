@@ -38,11 +38,13 @@ export const giftsData = [
 
 export const usersData = [
   {
-    name: 'Corlys',
-    password: 'Rhaenys',
+    name: 'admin',
+    password: 'adminpassword',
+    role: 'admin',
   },
   {
-    name: 'Aegon',
-    password: 'Heleana',
+    name: 'user',
+    password: 'userpassword',
+    role: 'user',
   },
 ] as const;

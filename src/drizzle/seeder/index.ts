@@ -18,7 +18,7 @@ const runSeeder = async () => {
 
   console.log('Running seeder...');
 
-  // await db.delete(schema.gifts);
+  await db.delete(schema.gifts);
 
   const gift = await db.query.gifts.findFirst();
   if (!gift) {
@@ -27,6 +27,8 @@ const runSeeder = async () => {
     }
   }
 
+  await db.delete(schema.users);
+
   const user = await db.query.users.findFirst();
   if (!user) {
     for (const user of usersData) {
@@ -34,6 +36,7 @@ const runSeeder = async () => {
       await db.insert(schema.users).values({
         name: user.name,
         saltedPassword: hashedPass,
+        role: user.role,
       });
     }
   }
