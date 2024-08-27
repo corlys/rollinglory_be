@@ -11,6 +11,7 @@ import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
 import { CreateGiftDto, CreateGiftSchema } from './dto/create-gift.dto';
 import { GetGiftsDto, GetGiftsSchema } from './dto/get-gifts.dto';
+import { GetGiftByIdDto, GetGiftByIdSchema } from './dto/get-gift-by-id.dto';
 
 @Controller('gifts')
 export class GiftsController {
@@ -36,7 +37,9 @@ export class GiftsController {
   }
 
   @Get('/:id')
-  async findOne(@Param('id') id: string) {
+  @UsePipes(new ZodValidationPipe(GetGiftByIdSchema))
+  async findOne(@Param() param: GetGiftByIdDto) {
+    const { id } = param;
     const gift = await this.giftsService.findOne(parseInt(id));
     return {
       data: gift,
