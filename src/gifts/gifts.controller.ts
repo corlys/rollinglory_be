@@ -36,6 +36,9 @@ import {
   REDEEM_SUCCESSFUL,
 } from '../common/messages';
 import { AuthGuard } from '../auth/auth.guard';
+import { Roles } from '../role/roles.decorator';
+import { RolesGuard } from '../role/roles.guard';
+import { Role } from '../role/roles.enum';
 
 @Controller('gifts')
 export class GiftsController {
@@ -123,7 +126,8 @@ export class GiftsController {
     };
   }
 
-  @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   @Post('/:id/rating')
   async rate(
     @Param(new ZodValidationPipe(GiftParamIdSchema)) param: GiftParamIdDto,

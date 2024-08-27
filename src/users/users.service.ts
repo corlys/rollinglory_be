@@ -45,6 +45,7 @@ export class UsersService {
       .values({
         name,
         saltedPassword,
+        role: 'user',
       })
       .returning({
         createdId: schema.users.id,

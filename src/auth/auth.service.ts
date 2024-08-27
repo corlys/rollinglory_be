@@ -18,7 +18,7 @@ export class AuthService {
       throw new UnauthorizedException('No account with this username is found');
     const verified = this.usersService.verify(pass, user.saltedPassword);
     if (!verified) throw new UnauthorizedException('Wrong password');
-    const payload = { sub: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.name, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
