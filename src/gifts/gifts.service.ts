@@ -62,6 +62,15 @@ export class GiftsService {
       .returning({ createdId: schema.gifts.id });
   }
 
+  async delete(id: number) {
+    return this.conn
+      .delete(schema.gifts)
+      .where(eq(schema.gifts.id, id))
+      .returning({
+        deletedId: schema.gifts.id,
+      });
+  }
+
   private calculateStars(gift: Gift) {
     let star = 0;
     const diff = gift.rating % 0.5;

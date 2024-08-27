@@ -6,12 +6,16 @@ import {
   Post,
   Body,
   UsePipes,
+  Delete,
+  Put,
+  Patch,
 } from '@nestjs/common';
 import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
 import { CreateGiftDto, CreateGiftSchema } from './dto/create-gift.dto';
 import { GetGiftsDto, GetGiftsSchema } from './dto/get-gifts.dto';
 import { GetGiftByIdDto, GetGiftByIdSchema } from './dto/get-gift-by-id.dto';
+import { DeleteGiftDto, DeleteGiftSchema } from './dto/delete-gift.dto';
 
 @Controller('gifts')
 export class GiftsController {
@@ -52,6 +56,16 @@ export class GiftsController {
     const createdId = await this.giftsService.create(createGiftDto);
     return {
       data: createdId,
+    };
+  }
+
+  @Delete('/:id')
+  @UsePipes(new ZodValidationPipe(DeleteGiftSchema))
+  async delete(@Param() deleteGiftDto: DeleteGiftDto) {
+    const { id } = deleteGiftDto;
+    const deletedId = await this.giftsService.delete(parseInt(id));
+    return {
+      data: deletedId,
     };
   }
 }
