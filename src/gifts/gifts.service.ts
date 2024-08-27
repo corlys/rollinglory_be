@@ -4,8 +4,8 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
 import { Gift, NewGift } from '../drizzle/schema/gifts';
 import { eq, desc, asc } from 'drizzle-orm';
-import { PatchGiftBodyDto } from './dto/patch-gift.dto';
-import { PutGiftBodyDto } from './dto/put-gift.dto';
+import { GiftDto } from './dto/gift.dto';
+import { PartialGiftDto } from './dto/partial-gifts.dto';
 
 @Injectable()
 export class GiftsService {
@@ -73,7 +73,7 @@ export class GiftsService {
       });
   }
 
-  async patch(id: number, patchGift: PatchGiftBodyDto) {
+  async patch(id: number, patchGift: PartialGiftDto) {
     const gift = {
       ...patchGift,
       updatedAt: new Date(),
@@ -86,7 +86,7 @@ export class GiftsService {
         updatedId: schema.gifts.id,
       });
   }
-  async put(id: number, putGift: PutGiftBodyDto) {
+  async put(id: number, putGift: GiftDto) {
     const gift = {
       ...putGift,
       updatedAt: new Date(),

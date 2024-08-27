@@ -15,10 +15,16 @@ import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
 import { CreateGiftDto, CreateGiftSchema } from './dto/create-gift.dto';
 import { GetGiftsDto, GetGiftsSchema } from './dto/get-gifts.dto';
-import { GetGiftByIdDto, GetGiftByIdSchema } from './dto/get-gift-by-id.dto';
-import { DeleteGiftDto, DeleteGiftSchema } from './dto/delete-gift.dto';
-import { PutGiftBodyDto, PutGiftBodySchema } from './dto/put-gift.dto';
-import { PatchGiftBodytSchema, PatchGiftBodyDto } from './dto/patch-gift.dto';
+import { GiftParamIdSchema, GiftParamIdDto } from './dto/gift-id.dto';
+import { GiftSchema, GiftDto } from './dto/gift.dto';
+import { PartialGiftSchema, PartialGiftDto } from './dto/partial-gifts.dto';
+import { GiveRatingBodyDto, GiveRatingBodySchema } from './dto/giverating.dto';
+import {
+  RedeemBodyDto,
+  RedeemBodySchema,
+  RedeemManyBodyDto,
+  RedeemManyBodySchema,
+} from './dto/redeem.dto';
 
 @Controller('gifts')
 export class GiftsController {
@@ -46,8 +52,8 @@ export class GiftsController {
   }
 
   @Get('/:id')
-  @UsePipes(new ZodValidationPipe(GetGiftByIdSchema))
-  async findOne(@Param() param: GetGiftByIdDto) {
+  @UsePipes(new ZodValidationPipe(GiftParamIdSchema))
+  async findOne(@Param() param: GiftParamIdDto) {
     const { id } = param;
     const gift = await this.giftsService.findOne(parseInt(id));
     return {
@@ -65,8 +71,8 @@ export class GiftsController {
   }
 
   @Delete('/:id')
-  @UsePipes(new ZodValidationPipe(DeleteGiftSchema))
-  async delete(@Param() deleteGiftDto: DeleteGiftDto) {
+  @UsePipes(new ZodValidationPipe(GiftParamIdSchema))
+  async delete(@Param() deleteGiftDto: GiftParamIdDto) {
     const { id } = deleteGiftDto;
     const deletedId = await this.giftsService.delete(parseInt(id));
     return {
@@ -77,7 +83,7 @@ export class GiftsController {
   @Put('/:id')
   async put(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(PutGiftBodySchema)) body: PutGiftBodyDto,
+    @Body(new ZodValidationPipe(GiftSchema)) body: GiftDto,
   ) {
     const updatedId = await this.giftsService.put(parseInt(id), body);
     return {
@@ -88,12 +94,69 @@ export class GiftsController {
   @Patch('/:id')
   async patch(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(PatchGiftBodytSchema)) body: PatchGiftBodyDto,
+    @Body(new ZodValidationPipe(PartialGiftSchema)) body: PartialGiftDto,
   ) {
     this.logger.log('route reched');
     const updatedId = await this.giftsService.patch(parseInt(id), body);
     return {
       data: updatedId,
+    };
+  }
+
+  @Post('/:id/rating')
+  async rate(
+    @Param(new ZodValidationPipe(GiftParamIdSchema)) param: GiftParamIdDto,
+    @Body(new ZodValidationPipe(GiveRatingBodySchema)) body: GiveRatingBodyDto,
+  ) {
+    const { id } = param;
+    const { rating } = body;
+    const updatedId = await this.giftsService.patch(parseInt(id), { rating });
+    return {
+      data: updatedId,
+    };
+  }
+
+  @Post('/:id/redeem')
+  async redeem(
+    @Param(new ZodValidationPipe(GiftParamIdSchema)) param: GiftParamIdDto,
+    @Body(new ZodValidationPipe(RedeemBodySchema)) body: RedeemBodyDto,
+  ) {
+    const { count } = body;
+    const { id } = param;
+    const gift = await this.giftsService.findOne(parseInt(id));
+    if (!gift) return { data: [] };
+    if (gift.stock >= count) {
+      const updatedId = await this.giftsService.patch(parseInt(id), {
+        stock: gift.stock - count,
+      });
+      return {
+        data: updatedId,
+      };
+    }
+    return {
+      data: [],
+    };
+  }
+
+  @Post('/redeem')
+  async redeemMany(
+    @Body(new ZodValidationPipe(RedeemManyBodySchema)) body: RedeemManyBodyDto,
+  ) {
+    const { items } = body;
+    const updatedIds: { updatedId: number }[] = [];
+    for (const item of items) {
+      const { id, count } = item;
+      const gift = await this.giftsService.findOne(id);
+      if (!gift) continue;
+      if (gift.stock >= count) {
+        await this.giftsService.patch(id, { stock: gift.stock - count });
+        updatedIds.push({
+          updatedId: id,
+        });
+      }
+    }
+    return {
+      data: updatedIds,
     };
   }
 }
