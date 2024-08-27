@@ -14,6 +14,12 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
 import { CreateUserDto, CreateUserSchema } from './dto/create-user.dto';
 import { ParamUserIdDto, ParamUserIdSchema } from './dto/param-user-id.dto';
 import { PutUserDto, PutUserSchema } from './dto/put-user.dto';
+import {
+  FETCH_SUCCESSFUL,
+  PUT_SUCCESSFUL,
+  DELETE_SUCCESSFUL,
+  CREATE_SUCCESSFUL,
+} from '../common/messages';
 
 @Controller('users')
 export class UsersController {
@@ -24,7 +30,7 @@ export class UsersController {
     const users = await this.usersService.findAll();
     return {
       code: 200,
-      message: 'success',
+      message: FETCH_SUCCESSFUL,
       data: users,
     };
   }
@@ -36,7 +42,7 @@ export class UsersController {
     const user = await this.usersService.findById(parseInt(id));
     return {
       code: 200,
-      message: 'Successfully Fetch Data',
+      message: FETCH_SUCCESSFUL,
       data: user,
     };
   }
@@ -48,7 +54,7 @@ export class UsersController {
     const deletedIds = await this.usersService.delete(parseInt(id));
     return {
       code: 200,
-      message: 'Successfully Delete Data',
+      message: DELETE_SUCCESSFUL,
       data: deletedIds,
     };
   }
@@ -67,7 +73,7 @@ export class UsersController {
     });
     return {
       code: 200,
-      message: 'Successfully Put Data',
+      message: PUT_SUCCESSFUL,
       data: updatedIds,
     };
   }
@@ -80,7 +86,7 @@ export class UsersController {
     const createdIds = await this.usersService.create(name, password);
     return {
       code: 201,
-      message: 'Successfully Created Data',
+      message: CREATE_SUCCESSFUL,
       data: createdIds,
     };
   }

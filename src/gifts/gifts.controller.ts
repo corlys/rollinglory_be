@@ -10,6 +10,8 @@ import {
   Put,
   Patch,
   Logger,
+  ForbiddenException,
+  HttpCode,
 } from '@nestjs/common';
 import { GiftsService } from './gifts.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
@@ -25,6 +27,14 @@ import {
   RedeemManyBodyDto,
   RedeemManyBodySchema,
 } from './dto/redeem.dto';
+import {
+  FETCH_SUCCESSFUL,
+  PUT_SUCCESSFUL,
+  PATCH_SUCCESSFUL,
+  DELETE_SUCCESSFUL,
+  CREATE_SUCCESSFUL,
+  REDEEM_SUCCESSFUL,
+} from '../common/messages';
 
 @Controller('gifts')
 export class GiftsController {
@@ -47,6 +57,8 @@ export class GiftsController {
       offset,
     );
     return {
+      code: 200,
+      message: FETCH_SUCCESSFUL,
       data: gifts,
     };
   }
@@ -57,15 +69,20 @@ export class GiftsController {
     const { id } = param;
     const gift = await this.giftsService.findOne(parseInt(id));
     return {
+      code: 200,
+      message: FETCH_SUCCESSFUL,
       data: gift,
     };
   }
 
+  @HttpCode(201)
   @Post()
   @UsePipes(new ZodValidationPipe(CreateGiftSchema))
   async create(@Body() createGiftDto: CreateGiftDto) {
     const createdId = await this.giftsService.create(createGiftDto);
     return {
+      code: 201,
+      message: CREATE_SUCCESSFUL,
       data: createdId,
     };
   }
@@ -76,6 +93,8 @@ export class GiftsController {
     const { id } = deleteGiftDto;
     const deletedId = await this.giftsService.delete(parseInt(id));
     return {
+      code: 200,
+      message: DELETE_SUCCESSFUL,
       data: deletedId,
     };
   }
@@ -87,6 +106,8 @@ export class GiftsController {
   ) {
     const updatedId = await this.giftsService.put(parseInt(id), body);
     return {
+      code: 200,
+      message: PUT_SUCCESSFUL,
       data: updatedId,
     };
   }
@@ -99,6 +120,8 @@ export class GiftsController {
     this.logger.log('route reched');
     const updatedId = await this.giftsService.patch(parseInt(id), body);
     return {
+      code: 200,
+      message: PATCH_SUCCESSFUL,
       data: updatedId,
     };
   }
@@ -112,6 +135,8 @@ export class GiftsController {
     const { rating } = body;
     const updatedId = await this.giftsService.patch(parseInt(id), { rating });
     return {
+      code: 200,
+      message: PATCH_SUCCESSFUL,
       data: updatedId,
     };
   }
@@ -124,18 +149,18 @@ export class GiftsController {
     const { count } = body;
     const { id } = param;
     const gift = await this.giftsService.findOne(parseInt(id));
-    if (!gift) return { data: [] };
+    if (!gift) throw new ForbiddenException('Cannot redeem gift');
     if (gift.stock >= count) {
       const updatedId = await this.giftsService.patch(parseInt(id), {
         stock: gift.stock - count,
       });
       return {
+        code: 200,
+        message: REDEEM_SUCCESSFUL,
         data: updatedId,
       };
     }
-    return {
-      data: [],
-    };
+    throw new ForbiddenException('Count is more than stock');
   }
 
   @Post('/redeem')
@@ -156,6 +181,8 @@ export class GiftsController {
       }
     }
     return {
+      code: 200,
+      message: REDEEM_SUCCESSFUL,
       data: updatedIds,
     };
   }
