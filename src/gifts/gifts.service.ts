@@ -4,6 +4,8 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
 import { Gift, NewGift } from '../drizzle/schema/gifts';
 import { eq, desc, asc } from 'drizzle-orm';
+import { PatchGiftBodyDto } from './dto/patch-gift.dto';
+import { PutGiftBodyDto } from './dto/put-gift.dto';
 
 @Injectable()
 export class GiftsService {
@@ -68,6 +70,33 @@ export class GiftsService {
       .where(eq(schema.gifts.id, id))
       .returning({
         deletedId: schema.gifts.id,
+      });
+  }
+
+  async patch(id: number, patchGift: PatchGiftBodyDto) {
+    const gift = {
+      ...patchGift,
+      updatedAt: new Date(),
+    };
+    return this.conn
+      .update(schema.gifts)
+      .set(gift)
+      .where(eq(schema.gifts.id, id))
+      .returning({
+        updatedId: schema.gifts.id,
+      });
+  }
+  async put(id: number, putGift: PutGiftBodyDto) {
+    const gift = {
+      ...putGift,
+      updatedAt: new Date(),
+    };
+    return this.conn
+      .update(schema.gifts)
+      .set(gift)
+      .where(eq(schema.gifts.id, id))
+      .returning({
+        updatedId: schema.gifts.id,
       });
   }
 

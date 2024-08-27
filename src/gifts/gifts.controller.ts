@@ -16,6 +16,8 @@ import { CreateGiftDto, CreateGiftSchema } from './dto/create-gift.dto';
 import { GetGiftsDto, GetGiftsSchema } from './dto/get-gifts.dto';
 import { GetGiftByIdDto, GetGiftByIdSchema } from './dto/get-gift-by-id.dto';
 import { DeleteGiftDto, DeleteGiftSchema } from './dto/delete-gift.dto';
+import { PutGiftBodyDto, PutGiftBodySchema } from './dto/put-gift.dto';
+import { PatchGifBodytSchema, PatchGiftBodyDto } from './dto/patch-gift.dto';
 
 @Controller('gifts')
 export class GiftsController {
@@ -66,6 +68,24 @@ export class GiftsController {
     const deletedId = await this.giftsService.delete(parseInt(id));
     return {
       data: deletedId,
+    };
+  }
+
+  @Put('/:id')
+  @UsePipes(new ZodValidationPipe(PutGiftBodySchema))
+  async put(@Param('id') id: string, @Body() body: PutGiftBodyDto) {
+    const updatedId = await this.giftsService.put(parseInt(id), body);
+    return {
+      data: updatedId,
+    };
+  }
+
+  @Patch('/:id')
+  @UsePipes(new ZodValidationPipe(PatchGifBodytSchema))
+  async patch(@Param('id') id: string, @Body() body: PatchGiftBodyDto) {
+    const updatedId = await this.giftsService.patch(parseInt(id), body);
+    return {
+      data: updatedId,
     };
   }
 }
