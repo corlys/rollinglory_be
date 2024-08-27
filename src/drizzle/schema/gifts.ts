@@ -11,8 +11,8 @@ export const gifts = pgTable('gifts', {
   id: serial('id').primaryKey(),
   name: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
-  stock: integer('stock').notNull(),
-  rating: integer('rating'),
+  stock: integer('stock').notNull().default(0),
+  rating: integer('rating').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

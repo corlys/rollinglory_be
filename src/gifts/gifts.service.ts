@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_CONNECTION } from '../constant';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../drizzle/schema';
+import { Gift } from '../drizzle/schema/gifts';
 import { eq, desc, asc } from 'drizzle-orm';
 
 @Injectable()
@@ -10,7 +11,7 @@ export class GiftsService {
     @Inject(PG_CONNECTION) private conn: NodePgDatabase<typeof schema>,
   ) {}
   async findAll(sortBy?: string, sort?: string) {
-    return this.conn.query.gifts.findMany({
+    const gifts = await this.conn.query.gifts.findMany({
       orderBy: (() => {
         switch (sortBy) {
           case 'new':
@@ -36,11 +37,22 @@ export class GiftsService {
         }
       })(),
     });
+    return gifts.map((gift) => this.calculateStars(gift));
   }
 
   async findOne(id: number) {
-    return this.conn.query.gifts.findFirst({
+    const gift = await this.conn.query.gifts.findFirst({
       where: eq(schema.gifts.id, id),
     });
+    if (!gift) return undefined;
+    return this.calculateStars(gift);
+  }
+
+  private calculateStars(gift: Gift) {
+    let star = 0;
+    const diff = gift.rating % 0.5;
+    if (diff > 3) star = gift.rating - diff + 0.5;
+    else star = gift.rating - diff;
+    return { ...gift, star };
   }
 }

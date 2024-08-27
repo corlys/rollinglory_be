@@ -15,6 +15,20 @@
       "when": 1724716194274,
       "tag": "0001_black_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1724719160352,
+      "tag": "0002_majestic_arclight",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1724719210824,
+      "tag": "0003_curved_doomsday",
+      "breakpoints": true
     }
   ]
 }
