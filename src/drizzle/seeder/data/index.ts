@@ -47,4 +47,14 @@ export const usersData = [
     password: 'userpassword',
     role: 'user',
   },
+  {
+    name: 'aegon',
+    password: 'heleana',
+    role: 'user',
+  },
+  {
+    name: 'rhaenyra',
+    password: 'laenorharwindaemon',
+    role: 'user',
+  },
 ] as const;
