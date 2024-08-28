@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipes';
@@ -20,6 +21,10 @@ import {
   DELETE_SUCCESSFUL,
   CREATE_SUCCESSFUL,
 } from '../common/messages';
+import { AuthGuard } from '../auth/auth.guard';
+import { Roles } from '../role/roles.decorator';
+import { Role } from '../role/roles.enum';
+import { RolesGuard } from '../role/roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -47,6 +52,8 @@ export class UsersController {
     };
   }
 
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete('/:id')
   @UsePipes(new ZodValidationPipe(ParamUserIdSchema))
   async delete(@Param() param: ParamUserIdDto) {
