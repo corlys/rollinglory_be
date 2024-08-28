@@ -1,12 +1,12 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { DrizzleModule } from 'src/drizzle/drizzle.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { SharedJwtModule } from 'src/shared/jwt/jwt.module';
 
 @Module({
   controllers: [UsersController],
-  imports: [DrizzleModule],
+  imports: [DrizzleModule, SharedJwtModule],
   providers: [UsersService],
   exports: [UsersService],
 })
